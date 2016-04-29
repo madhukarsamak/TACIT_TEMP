@@ -51,11 +51,11 @@ public class Counts {
             if(!bigram_w.containsKey(w_next)){
                 bigram_w.put(w_next,0);
             }
-            bigram_w.put(w,(Integer)bigram_w.get(w_next)+1);
+            bigram_w.put(w_next,(Integer)bigram_w.get(w_next)+1);
             if(!next_marg.containsKey(w_next)){
                 next_marg.put(w_next,0);
             }
-            next_marg.put(w,(Integer)next_marg.get(w_next)+1);
+            next_marg.put(w_next,(Integer)next_marg.get(w_next)+1);
         }
     }
 
@@ -88,14 +88,14 @@ public class Counts {
         }
         Map<Object,Object> selected = new HashMap<Object,Object>();
         Map<Object,Object> scores = sig_test.score(marg_w,marg,bigram_w,total,min);
-        ArrayList<Object>items = (ArrayList<Object>)scores.values();
+        ArrayList<Object>items = Commons.items(scores);
         items.sort(new Comparator<Object>() {
             @Override
             public int compare(Object o1, Object o2) {
                 Object[]a1 = (Object[])o1;
                 Object[]a2 = (Object[])o2;
                 Double v1 = (Double)a1[1];
-                Double v2 = (Double)a2[2];
+                Double v2 = (Double)a2[1];
                 if(v1-v2== 0)
                     return 0;
                 else if(v1-v2 > 0)
@@ -114,7 +114,7 @@ public class Counts {
         for(Object[] s: filteredScores){
             String cand = (String)s[0];
             Double max_score = (Double)s[1];
-            if((Double)bigram_w.get(cand) < min){
+            if((Integer)bigram_w.get(cand) < min){
                 continue;
             }
             Double null_score = sig_test.null_score(marg_w, marg, total);

@@ -9,7 +9,7 @@ public class LikelihoodRatio {
     Map<Object,Object> perms;
     double perm_hash = 10;
     boolean use_perm;
-    private Turbotopics tt = new Turbotopics();
+    //private Turbotopics tt = new Turbotopics();
 
     public LikelihoodRatio(Double pvalue, boolean use_perm, double perm_hash){
         this(pvalue,use_perm);
@@ -82,7 +82,8 @@ public class LikelihoodRatio {
             }
         });
         for(int perm=0; perm < nperm; perm++){
-            Map<Object,Object> perm_bigram = tt.sample_no_replace(total,table,count);
+            //Map<Object,Object> perm_bigram = tt.sample_no_replace(total,table,count);
+            Map<Object,Object> perm_bigram = Commons.sample_no_replace(total,table,count);
             Map<Object,Object> obs= score(count,marg,perm_bigram,total,1);
             Comparator<Object> comp = new Comparator<Object>() {
                 @Override

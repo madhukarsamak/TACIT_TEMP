@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
  * Created by msamak on 3/14/16.
  */
 public class Turbotopics {
-    private Map<String,String> stop_words = null;
+    /*private Map<String,String> stop_words = null;
     private Map<Object,Object> get_chi_sq_table(){
         Map<Object,Object> _chi_sq_table = new HashMap<Object,Object>();
         _chi_sq_table.put(0.1,2.70554345);
@@ -135,14 +135,17 @@ public class Turbotopics {
         write_vocab(v,outname,false);
     }
 
-    private Counts nested_sig_bigrams(ArrayList<Object[]>iter_generator, BiConsumer<Counts,Object[]> update_fun, LikelihoodRatio sig_test, Integer min){
+    /*private Counts nested_sig_bigrams(ArrayList<Object[]>iter_generator, BiConsumer<Counts,Object[]> update_fun, LikelihoodRatio sig_test, Integer min){
         System.out.println("computing initial counts\n");
         Counts counts = new Counts();
         ArrayList<String> terms = new ArrayList<String>();
         for(Object[] doc: iter_generator){
             update_fun.accept(counts,doc);
         }
-        ArrayList<Object> items = (ArrayList<Object>) counts.marg.values();
+        ArrayList<Object> items = new ArrayList<Object>();
+        for(Object obj: counts.marg.values()){
+            items.add(obj);
+        }
         terms = getTerms(items,min);
         while(terms.size() > 0){
             Map<Object,Object> new_vocab = new HashMap<Object,Object>();
@@ -184,9 +187,9 @@ public class Turbotopics {
             }
         }
         return counts;
-    }
+    }*/
 
-    private ArrayList<String> getTerms(ArrayList<Object> items, int min){
+    /*private ArrayList<String> getTerms(ArrayList<Object> items, int min){
         ArrayList<String> terms = new ArrayList<String>();
         items.sort(new Comparator<Object>() {
             @Override
@@ -236,5 +239,5 @@ public class Turbotopics {
             mach = (Map<Object,Object>)mach.get(w);
             i = i + 1;
         }
-    }
+    }*/
 }

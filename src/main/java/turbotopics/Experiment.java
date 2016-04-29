@@ -1,4 +1,4 @@
-import org.json.JSONObject;
+//import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,10 +24,7 @@ public class Experiment {
         System.out.println(Commons.word_list(s[1],vocab).toString());
         System.out.println(vocab.toString());*/
 
-        JSONObject marg = new JSONObject();
-        marg.put("a",0);
-        marg.put("b",(Integer)marg.get("a")+1);
-        System.out.println(marg.toString());
+
 
         Map<Object,Object> a = new HashMap<Object,Object>();
         Map<Object,Object> b = new HashMap<Object,Object>();

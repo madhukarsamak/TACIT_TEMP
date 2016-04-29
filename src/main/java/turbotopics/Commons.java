@@ -91,7 +91,8 @@ public class Commons {
     public static Map<String,String> getStopWords(){
         try {
             if (stop_words == null) {
-                BufferedReader br = new BufferedReader(new FileReader("stop_words"));
+                stop_words = new HashMap<String,String>();
+                BufferedReader br = new BufferedReader(new FileReader("/Users/msamak/work/TurboTopics/src/main/java/turbotopics/stop_words"));
                 String line = br.readLine();
                 while (line != null) {
                     stop_words.put(line.trim(), "");
@@ -107,15 +108,15 @@ public class Commons {
 
     public static void write_vocab(Map<Object,Object> v, String outname, Boolean incl_stop) throws Exception {
         PrintWriter pw = new PrintWriter(outname);
-        ArrayList<Object> items =  (ArrayList<Object>)v.values();
+        ArrayList<Object> items =  items(v);
         items.sort(new Comparator<Object>() {
             @Override
             public int compare(Object o1, Object o2) {
                 Object[] a1 = (Object[])o1;
                 Object[] a2 = (Object[])o2;
-                if ((Double)a1[1] - (Double)a2[1] == 0)
+                if ((Integer)a1[1] - (Integer)a2[1] == 0)
                     return 0;
-                else if (((Double)a1[1] - (Double)a2[1]) > 0)
+                else if (((Integer)a1[1] - (Integer)a2[1]) < 0)
                     return 1;
                 else
                     return -1;
@@ -125,7 +126,8 @@ public class Commons {
         for(Object item: items){
             Object[] itemArray = (Object[])item;
             if(incl_stop || stop_words == null || !stop_words.containsKey((String)itemArray[0])){
-                pw.print(itemArray[0].toString()+" "+itemArray[1]);
+                //pw.print(itemArray[0].toString()+" "+itemArray[1]+"\n");
+                pw.printf("%-25s %8.2f\n",itemArray[0],Float.parseFloat(itemArray[1].toString()));
             }
         }
         pw.close();
@@ -139,10 +141,16 @@ public class Commons {
         System.out.println("computing initial counts\n");
         Counts counts = new Counts();
         ArrayList<String> terms = new ArrayList<String>();
+        int ccc =0;
         for(Object[] doc: iter_generator){
+            if (ccc == 32){
+                int abcd = 0;
+            }
             update_fun.accept(counts,doc);
+            ccc++;
         }
-        ArrayList<Object> items = (ArrayList<Object>) counts.marg.values();
+        //ArrayList<Object> items = (ArrayList<Object>) counts.marg.values();
+        ArrayList<Object> items = items(counts.marg);
         terms = getTerms(items,min);
         while(terms.size() > 0){
             Map<Object,Object> new_vocab = new HashMap<Object,Object>();
@@ -161,15 +169,15 @@ public class Commons {
             for(Object[] doc: iter_generator){
                 update_fun.accept(counts,doc);
             }
-            items = (ArrayList<Object>) new_vocab.values();
+            items = items(new_vocab);
             items.sort(new Comparator<Object>() {
                 @Override
                 public int compare(Object o1, Object o2) {
                     Object[] a1 = (Object[])o1;
                     Object[] a2 = (Object[])o2;
-                    if ((Double)a1[1] - (Double)a2[1] == 0)
+                    if ((Integer)a1[1] - (Integer)a2[1] == 0)
                         return 0;
-                    else if (((Double)a1[1] - (Double)a2[1]) > 0)
+                    else if (((Integer)a1[1] - (Integer)a2[1]) > 0)
                         return 1;
                     else
                         return -1;
@@ -178,7 +186,7 @@ public class Commons {
             terms = new ArrayList<String>();
             for(Object item: items){
                 Object[] arr = (Object[])item;
-                if((Double)arr[1] >= min) {
+                if((Integer)arr[1] >= min) {
                     terms.add((String) arr[0]);
                 }
             }
@@ -193,8 +201,8 @@ public class Commons {
             public int compare(Object o1, Object o2) {
                 Object[]a1 = (Object[])o1;
                 Object[]a2 = (Object[])o2;
-                Double v1 = (Double)a1[1];
-                Double v2 = (Double)a2[2];
+                Integer v1 = (Integer) a1[1];
+                Integer v2 = (Integer)a2[1];
                 if(v1-v2== 0)
                     return 0;
                 else if(v1-v2 > 0)
@@ -205,7 +213,7 @@ public class Commons {
         });
         for(Object item: items){
             Object[] it = (Object[]) item;
-            if((Double)it[1] >= min){
+            if((Integer)it[1] >= min){
                 terms.add((String)it[0]);
             }
         }
@@ -236,6 +244,17 @@ public class Commons {
             mach = (Map<Object,Object>)mach.get(w);
             i = i + 1;
         }
+    }
+
+    public static ArrayList<Object> items(Map<Object,Object>map){
+        ArrayList<Object> items = new ArrayList<Object>();
+        for(Map.Entry<Object,Object> pair: map.entrySet()){
+            Object[] comps = new Object[2];
+            comps[0] = pair.getKey();
+            comps[1] = pair.getValue();
+            items.add(comps);
+        }
+        return items;
     }
 
 
