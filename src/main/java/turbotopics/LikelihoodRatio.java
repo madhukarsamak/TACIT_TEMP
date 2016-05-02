@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * Created by msamak on 3/7/16.
@@ -9,7 +8,6 @@ public class LikelihoodRatio {
     Map<Object,Object> perms;
     double perm_hash = 10;
     boolean use_perm;
-    //private Turbotopics tt = new Turbotopics();
 
     public LikelihoodRatio(Double pvalue, boolean use_perm, double perm_hash){
         this(pvalue,use_perm);
@@ -22,14 +20,28 @@ public class LikelihoodRatio {
         this.use_perm = use_perm;
     }
 
+    /** reset the permutation cache **/
     public void reset(){
         perms = new HashMap<Object, Object>();
     }
 
+    /** returns log of a value. If value is 0, return -1000000 **/
     private double mylog(double x){
         return (x==0)?-1000000:Math.log(x);
     }
 
+    /**
+     * computes the likelihood score.
+     * logic for calulating the likelihood score:
+     * for each bigram, compute 2 times the log likelihood ratio of
+     * modeling it as a bigram versus not modeling it as a bigram
+     * @param count : count of root words
+     * @param unigram : unigram counts of next word
+     * @param bigram: bigram counts of next word
+     * @param total : total words
+     * @param min_count : threshold of word count
+     * @return: Likelihood score for each input bigram
+     */
     public Map<Object,Object> score(int count, Map<Object,Object> unigram, Map<Object,Object> bigram, int total, int min_count){
         Map<Object,Object> val = new HashMap<Object,Object>();
         for(Object v: bigram.keySet()){
@@ -56,6 +68,9 @@ public class LikelihoodRatio {
         return val;
     }
 
+    /**
+     * returns the maximum maximum-score achieved by a permutation
+     */
     private Double null_score_perm(int count, Map<Object,Object> marg, int total){
         Integer perm_key = (int)(count/perm_hash);
         if(perms.containsKey(perm_key)){
@@ -73,17 +88,16 @@ public class LikelihoodRatio {
         table.sort(new Comparator<Object[]>() {
             @Override
             public int compare(Object[] o1, Object[] o2) {
-                if ((Double)o1[1] - (Double)o2[1] == 0)
+                if ((Integer)o1[1] - (Integer)o2[1] == 0)
                     return 0;
-                else if (((Double)o1[1] - (Double)o2[1]) > 0)
+                else if (((Integer)o1[1] - (Integer)o2[1]) > 0)
                     return 1;
                 else
                     return -1;
             }
         });
         for(int perm=0; perm < nperm; perm++){
-            //Map<Object,Object> perm_bigram = tt.sample_no_replace(total,table,count);
-            Map<Object,Object> perm_bigram = Commons.sample_no_replace(total,table,count);
+            Map<Object,Object> perm_bigram = Turbotopics.sample_no_replace(total,table,count);
             Map<Object,Object> obs= score(count,marg,perm_bigram,total,1);
             Comparator<Object> comp = new Comparator<Object>() {
                 @Override
@@ -96,7 +110,10 @@ public class LikelihoodRatio {
                         return -1;
                 }
             };
-            List<Object> obs_val_list = (List)obs.values();
+            List<Object> obs_val_list = new ArrayList<Object>();
+            for (Object obj: obs.values()){
+                obs_val_list.add(obj);
+            }
             Collections.sort(obs_val_list,comp);
             Double obs_score = (Double)obs_val_list.get(0);
             if(obs_score > max_score || perm == 0){
@@ -107,8 +124,9 @@ public class LikelihoodRatio {
         return max_score;
     }
 
+    /** returns the chi squared null score */
     private Double null_score_chi_sq(int count, Map<Object,Object>marg, int total){
-        return (Double)Commons.get_chi_sq_table().get(pvalue);
+        return (Double) Turbotopics.get_chi_sq_table().get(pvalue);
 
     }
 

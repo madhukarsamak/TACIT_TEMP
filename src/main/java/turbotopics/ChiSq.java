@@ -11,6 +11,9 @@ public class ChiSq {
         this.pvalue = pvalue;
     }
 
+    /**
+     * returns the chi_sq test scores
+     */
     private Map<Object,Object> score(int count, Map<Object,Object> marg, Map<Object,Object> bigram, int total, int min_count){
         Map<Object,Object> scores = new HashMap<Object,Object>();
         for(Object w2 : bigram.keySet()){
@@ -28,7 +31,10 @@ public class ChiSq {
         return scores;
     }
 
+    /**
+     returns the chi squared null score
+     */
     private double null_score(int count, Map<Object,Object>marg, int total){
-        return (Double)Commons.get_chi_sq_table().get(pvalue);
+        return (Double) Turbotopics.get_chi_sq_table().get(pvalue);
     }
 }

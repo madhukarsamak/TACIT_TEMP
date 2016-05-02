@@ -8,26 +8,27 @@ import java.util.function.Function;
  * Created by msamak on 3/6/16.
  */
 public class Counts {
-    Map<Object,Object> vocab;
-    Map<Object,Object> marg;
-    Map<Object,Object> next_marg;
-    Map<Object,Object> bigram;
+    Map<Object,Object> vocab; //vocabulary with multi token terms like "new york"
+    Map<Object,Object> marg; //marginal counts of words
+    Map<Object,Object> next_marg; //marginal next word counts
+    Map<Object,Object> bigram; //Bigram counts
 
     public Counts(){
         vocab = new HashMap<Object,Object>();
         reset_counts();
     }
 
-    public void update_counts(String doc, Function<String,Boolean>root_filter){
-        update_counts(doc,root_filter,null);
-    }
-
-    public void update_counts(String doc){
-        update_counts(doc,null,null);
-    }
-
+    /**
+     *  update the bigram and marginal counts with a line of text.
+     * takes two filter functions and does not count words or next
+     * words if they do not pass through the filter.  (e.g., the
+     * filter can be used to remove stop words.)
+     * @param doc - A line of string which is considered as a document
+     * @param root_filter - A function of that returns true or false for a given string
+     * @param next_filter - A function of that returns true or false for a given string
+     */
     public void update_counts(String doc, Function<String,Boolean>root_filter, Function<String,Boolean>next_filter){
-        String[] words = Commons.word_list(doc,vocab);
+        String[] words = Turbotopics.word_list(doc,vocab);
         for(int pos = 0; pos < words.length; pos++){
             String w = words[pos];
             if(root_filter != null && !root_filter.apply(w)){
@@ -59,24 +60,45 @@ public class Counts {
         }
     }
 
+    /** Same as above method but with 1 filters */
+    public void update_counts(String doc, Function<String,Boolean>root_filter){
+        update_counts(doc,root_filter,null);
+    }
+
+    /** Same as above method but with no filters **/
+    public void update_counts(String doc){
+        update_counts(doc,null,null);
+    }
+
     public void reset_counts(){
         marg = new HashMap<Object,Object>();
         next_marg = new HashMap<Object,Object>();
         bigram = new HashMap<Object,Object>();
     }
 
+
     public Map<Object,Object> sig_bigrams(String word, LikelihoodRatio sig_test, int min){
         return sig_bigrams(word,sig_test,min,true);
     }
 
+    /**
+     * compute significant bigrams from a word.
+     * requires a significance tester object which has the following:
+     *  - score : (next_marg, next_bigram) -> [words->reals]
+     *  - null_score : (next_marg, next_bigram, pvalue) -> null_value
+     * @param word : input word
+     * @param sig_test : The significance tester object which is an object of Likelihood ratio
+     * @param min : min count
+     * @return: A bigram object
+     */
     public Map<Object,Object> sig_bigrams(String word, LikelihoodRatio sig_test, int min, boolean recursive){
         if(!bigram.containsKey(word)){
             return new HashMap<Object,Object>();
         }
-        Map<Object,Object> marg = (Map<Object,Object>)Commons.deepCopy(this.next_marg);
+        Map<Object,Object> marg = (Map<Object,Object>) Turbotopics.deepCopy(this.next_marg);
         Map<Object,Object> bigram_w = new HashMap<Object,Object>();
         if(this.bigram.containsKey(word)){
-            bigram_w = (Map<Object,Object>)Commons.deepCopy(this.bigram.get(word));
+            bigram_w = (Map<Object,Object>) Turbotopics.deepCopy(this.bigram.get(word));
         }
         Integer marg_w =0;
         for(Object val: bigram_w.values()){
@@ -88,7 +110,7 @@ public class Counts {
         }
         Map<Object,Object> selected = new HashMap<Object,Object>();
         Map<Object,Object> scores = sig_test.score(marg_w,marg,bigram_w,total,min);
-        ArrayList<Object>items = Commons.items(scores);
+        ArrayList<Object>items = Turbotopics.items(scores);
         items.sort(new Comparator<Object>() {
             @Override
             public int compare(Object o1, Object o2) {
