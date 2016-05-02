@@ -19,6 +19,16 @@ public class MultTest {
         this.perm_hash = perm_hash;
     }
 
+    /**
+     * computes the multinomial likelihood ratio score.
+     * returns the GOF test scores
+     * @param count : count of root words
+     * @param marg : unigram counts
+     * @param bigram: bigram counts
+     * @param total : total words
+     * @param min_count : threshold of word count
+     * @return: Likelihood score for each input bigram
+     */
     private Map<Object,Object> score(int count, Map<Object,Object> marg, Map<Object,Object> bigram, int total, int min_count){
         Map<Object,Object> scores = new HashMap<Object,Object>();
         Integer n_u = count;
@@ -54,6 +64,7 @@ public class MultTest {
         return (x==0)?-1000000:Math.log(x);
     }
 
+    /** returns the maximum maximum-score achieved by a permutation **/
     private Double null_score_perm(int count, Map<Object,Object> marg, int total){
         Integer perm_key = (int)(count/perm_hash);
         if(perms.containsKey(perm_key)){
@@ -71,16 +82,16 @@ public class MultTest {
         table.sort(new Comparator<Object[]>() {
             @Override
             public int compare(Object[] o1, Object[] o2) {
-                if ((Double)o1[1] - (Double)o2[1] == 0)
+                if ((Integer)o1[1] - (Integer)o2[1] == 0)
                     return 0;
-                else if (((Double)o1[1] - (Double)o2[1]) > 0)
+                else if (((Integer)o1[1] - (Integer)o2[1]) > 0)
                     return 1;
                 else
                     return -1;
             }
         });
         for(int perm=0; perm < nperm; perm++){
-            Map<Object,Object> perm_bigram = Commons.sample_no_replace(total,table,count);
+            Map<Object,Object> perm_bigram = Turbotopics.sample_no_replace(total,table,count);
             Map<Object,Object> obs= score(count,marg,perm_bigram,total,1);
             Comparator<Object> comp = new Comparator<Object>() {
                 @Override
@@ -93,7 +104,10 @@ public class MultTest {
                         return -1;
                 }
             };
-            List<Object> obs_val_list = (List)obs.values();
+            List<Object> obs_val_list = new ArrayList<Object>();
+            for (Object obj: obs.values()){
+                obs_val_list.add(obj);
+            }
             Collections.sort(obs_val_list,comp);
             Double obs_score = (Double)obs_val_list.get(0);
             if(obs_score > max_score || perm == 0){
@@ -104,8 +118,9 @@ public class MultTest {
         return max_score;
     }
 
+    /** returns the chi squared null score */
     private Double null_score_chi_sq(int count, Map<Object,Object>marg, int total){
-        return (Double)Commons.get_chi_sq_table().get(pvalue);
+        return (Double) Turbotopics.get_chi_sq_table().get(pvalue);
     }
 
     public Double null_score(int count, Map<Object,Object>marg, int total){
@@ -115,10 +130,4 @@ public class MultTest {
             return null_score_chi_sq(count,marg,total);
         }
     }
-
-
-
-
-
 }
-
