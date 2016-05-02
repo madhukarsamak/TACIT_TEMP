@@ -118,3 +118,57 @@ It prints the file name first, and then lists differences if there are any
 python compare.py <directory_of_python_generated_files> <directory_of_java_generated_files>
 
 
+
+
+Other Details:
+
+How the porting was performed:
+The porting was performed in a simple understandable methodology
+
+1: First off, i started with the easiest of all - Classes. It was easily recognizable which part of the code should be a class and which [art should be a method.
+Thus created all the classes initially
+
+2: Went through every line of code in those classes and understood the python way of working.
+
+3: Created exact same methods and variables inside methods with same names so that it will be easy to compare the code
+
+4: The biggest challange was to understand what were the underlying types of every object in python since java is completely typed and it is important to know what type to serilialize and deserialze to.
+Once the underlying types became clear, then every object in java was coded as a generic "Object" class. And every time the underlying value was required, a normal type cast would work.
+
+5. For every lambda function that was used in python a similar lamda function using Function<T,T>, Consumer<T> or BiFunction<T,T,T> was used  in Java. This helped to keep the code exactly similar to that
+of the python code.
+
+6. Lastly testing was to done to compare every line of every file of the outputs generated for same set of inputs.
+
+7. This increased the confidence in the code and also observerd that the Java code runs extremely fast as compared to the python code
+
+
+Testing:
+
+Since i am not from the Machine Learning background, I don't have in depth understanding of how LDA works or how TurboTopics or Ngram generation works.
+But i had a general idea about LDA, TurboTopics and NGram generation. With that i did the following
+
+1. downlaoded the crawl data from us_congress_crawler. Downaloded around 800 files for "Barrack-Obama".
+
+2. Used a smaller set of files, like around 5 files or 10 files and generated word-weight file using LDA plugin. (only sets of 5 or 10 files were uses since it takes extremely long time if more files
+selectec ).
+
+3. Used the same set of files to generate the single corpus file in the format mentiones above in the steps
+
+4. Similarly generated word-topic-assignment file as explained above
+
+5. Similarly generated vocabulary file as explained above
+
+6. With these set of files, i executed TurboTopics with same set of inputs using both python code and java code and used compare.py file to compare the outputs.
+I did this for various combinations of inputs - like using different pvalues, using permutations for likelihood ratio score, using different number of topics.
+This comparision helped me fix couple of bugs which was very evident when the outputs were compared.
+
+7. I repeated the procedure for different set of files again.
+
+8. Every time after fixing bugs, i found that the outputs were perfectly matching (string comparision of outputs) including the print statments.
+
+9. This verifies that the Java code works exactly the way the Python code works.
+
+
+
+
