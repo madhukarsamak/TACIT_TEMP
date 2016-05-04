@@ -14,15 +14,14 @@ for pyfile in pyfiles:
     print("----------- "+pyfile+" ---------")
     pycontent = open(pypath+"/"+pyfile).readlines()
     jacontent = open(japath+"/"+pyfile).readlines()
-    if(len(pycontent) != len(jacontent)):
-        print("the length of the file is different")
-        continue
     pycontent = sorted(pycontent)
     jacontent = sorted(jacontent)
-    for id in range(len(pycontent)):
-        if pycontent[id] != jacontent[id]:
-            print("unmatched line : "+str(id))
-            print(pycontent[id])
+    map = {}
+    for cont in pycontent:
+        map[cont] = ""
+    for id in range(len(jacontent)):
+        if jacontent[id] not in map:
+            print("this line in java output is not found in python output : line number in java output: "+str(id))
             print(jacontent[id])
 
 
